@@ -1,0 +1,41 @@
+---
+import {img, srcset, rich} from '../lib/helpers'
+import Logo from './Logo.astro'
+const {r} = Astro.props
+const photo = r.images?.[0]
+const photoUrl = img(photo, 960, 720)
+---
+<article class="r-info" data-info={r.slug} data-color={r.color || '#333333'} data-accent={r.accentColor || r.color || '#333333'} inert>
+  {photoUrl
+    ? <img class="r-photo" src={photoUrl} srcset={srcset(photo)} sizes="(max-width: 767px) 100vw, 33vw" alt={photo?.alt || r.nameJa} loading="lazy" />
+    : <div class="r-photo" />}
+
+  <div class="r-body">
+    <h2 class="big r-name">{r.nameEn}<br /><span>{r.nameJa}</span></h2>
+
+    <p class="r-meta">
+      {r.postalCode && <>{r.postalCode}<br /></>}
+      {r.address && (r.mapUrl ? <a href={r.mapUrl} target="_blank" rel="noopener">{r.address}</a> : r.address)}<br />
+      {r.phone && <><a href={`tel:${r.phone.replace(/[^\d+]/g, '')}`}>{r.phone}</a><br /></>}
+      {r.hours}{r.holidays && <> ／ 定休日 {r.holidays}</>}
+    </p>
+
+    <div class="r-desc" set:html={rich(r.description)} />
+
+    {(r.instagram || r.reservationUrl) && (
+      <p class="r-ext">
+        {r.reservationUrl && <a href={r.reservationUrl} target="_blank" rel="noopener">RESERVATION 予約</a>}
+        {r.instagram && <a href={r.instagram} target="_blank" rel="noopener">INSTAGRAM</a>}
+      </p>
+    )}
+
+    <!-- mobile uniquement : sur desktop ces liens sont dans la colonne de droite -->
+    <div class="r-links">
+      <Logo src={r.logo} label={r.nameEn} class="r-links-logo" />
+      <div>
+        <a class="big" href={`#${r.slug}/menu`}>MENU<br /><span>メニュー</span></a>
+        {r.recruitmentOpen && <a class="small-link" href={`#${r.slug}/recruitment`}>RECRUITMENT 求人</a>}
+      </div>
+    </div>
+  </div>
+</article>

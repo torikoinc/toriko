@@ -1,0 +1,8 @@
+---
+import {img} from '../lib/helpers'
+const {src, label, class: cls, ...rest} = Astro.props
+const url = img(src, 240)
+---
+{url
+  ? <img src={url} alt={label} class={cls} {...rest} />
+  : <span class:list={['logo-ph', cls]} aria-label={label} {...rest}>{label?.slice(0, 1)}</span>}

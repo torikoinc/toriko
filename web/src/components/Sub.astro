@@ -1,0 +1,11 @@
+---
+// Panneau latéral générique (glisse depuis la droite)
+const {id, title, titleJa} = Astro.props
+---
+<aside class="sub" data-sub={id} inert>
+  <a class="close" href="#" data-close aria-label="閉じる"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M1 1 9 9M9 1 1 9" /></svg></a>
+  <div class="sub-inner">
+    <h2 class="sub-title">{title}{titleJa && <span> {titleJa}</span>}</h2>
+    <slot />
+  </div>
+</aside>

@@ -1,0 +1,18 @@
+---
+import {rich} from '../lib/helpers'
+const {positions = [], fallbackEmail} = Astro.props
+const types: Record<string, string> = {fulltime: '正社員', parttime: 'アルバイト・パート', contract: '契約社員'}
+---
+{positions.map((p: any) => (
+  <div class="job">
+    <h4>{p.title}{p.employmentType && <span>{types[p.employmentType]}</span>}</h4>
+    <dl>
+      {p.salary && <><dt>給与</dt><dd>{p.salary}</dd></>}
+      {p.hours && <><dt>勤務時間</dt><dd>{p.hours}</dd></>}
+    </dl>
+    {p.details && <div class="job-details" set:html={rich(p.details)} />}
+    {p.applyUrl
+      ? <a class="job-apply" href={p.applyUrl} target="_blank" rel="noopener">応募する →</a>
+      : fallbackEmail && <a class="job-apply" href={`mailto:${fallbackEmail}?subject=${encodeURIComponent('求人応募：' + p.title)}`}>応募する →</a>}
+  </div>
+))}

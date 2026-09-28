@@ -1,0 +1,262 @@
+/* ---------------------------------------------------------------
+   TORIKO — layout 3 colonnes + panneaux glissants
+   Home        : [liste 1fr] [fiche 0]   [nav 1fr]
+   Resto       : [liste 1/3] [fiche 1/3] [nav 1/3]
+   Resto + sub : tout glisse de -1/3, le sous-panneau prend la 3e colonne
+---------------------------------------------------------------- */
+
+:root {
+  --cream: #f3eee6;
+  --beige: #e5dac6;
+  --ink: #1a1a1a;
+  --r-color: #1a1a1a;
+  --r-accent: var(--r-color);
+  --r-ink: color-mix(in srgb, var(--r-color), #000 45%);
+  --W: 33.3333vw;
+  --pad: clamp(14px, 1.3vw, 24px);
+  --fs-l: clamp(32px, 3.45vw, 64px);
+  --fs-s: clamp(12px, 0.85vw, 14px);
+  --fs-xs: clamp(10px, 0.7vw, 12px);
+  --ease: cubic-bezier(0.7, 0, 0.2, 1);
+  --dur: 0.75s;
+  --sub-bg: var(--cream);
+  --sub-ink: var(--ink);
+
+  /* ヒラギノ角ゴ ProN : installée sur Mac / iPhone uniquement.
+     Windows / Android → Noto Sans JP (Google Fonts, téléchargée seulement si Hiragino absente) */
+  font-family: 'Hiragino Kaku Gothic ProN', 'ヒラギノ角ゴ ProN W3', 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+.is-r { --sub-bg: var(--cream); --sub-ink: var(--r-accent); }
+
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; overflow: hidden; background: var(--cream); color: var(--ink); }
+a { color: inherit; text-decoration: none; }
+a:hover { opacity: 0.6; }
+ul { list-style: none; margin: 0; padding: 0; }
+h2, h3, h4, p, dl, dd, figure { margin: 0; }
+img { display: block; max-width: 100%; }
+
+.big { font-size: var(--fs-l); line-height: 1; font-weight: 600; letter-spacing: -0.01em; }
+.big span { display: inline-block; }
+
+.no-anim, .no-anim * { transition: none !important; }
+
+/* ---------- Stage ---------- */
+.stage {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: 100vw;
+  display: grid;
+  grid-template-columns: 1fr 0fr var(--W); /* colonne droite fixe : la fiche sort de derrière elle */
+  transition:
+    grid-template-columns var(--dur) var(--ease),
+    width var(--dur) var(--ease),
+    transform var(--dur) var(--ease);
+}
+.is-r .stage { grid-template-columns: 1fr 1fr var(--W); }
+.is-sub:not(.is-r) .stage { width: calc(100vw - var(--W)); }
+.is-r.is-sub .stage { transform: translateX(calc(-1 * var(--W))); }
+
+.col { position: relative; min-width: 0; height: 100vh; height: 100dvh; overflow: hidden; }
+
+/* Colonne 1 */
+.col-left {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: var(--pad);
+  transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+.col-left { color: #000; }
+.is-r .col-left { background: var(--r-color); }
+.is-r .col-left a:hover { opacity: 0.4; }
+.r-list a.is-current { opacity: 1; }
+
+/* Colonne 2 */
+.col-info { background: var(--beige); }
+.strip-close { display: none; }
+.r-info {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--W);
+  overflow-y: auto;
+  color: var(--r-accent);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.35s, visibility 0.35s;
+}
+.r-info.is-active { opacity: 1; visibility: visible; }
+.r-photo { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; background: color-mix(in srgb, var(--r-color), #fff 25%); }
+.r-body { padding: var(--pad); }
+.r-name { margin-bottom: 1em; }
+.r-meta { font-size: var(--fs-s); font-weight: 700; line-height: 1.2; margin-bottom: 1.5em; }
+.r-desc, .prose { font-size: var(--fs-s); line-height: 1.2; }
+.r-desc p + p, .prose p + p { margin-top: 1em; }
+.r-ext { margin-top: 2em; font-size: var(--fs-s); font-weight: 700; display: flex; gap: 1.5em; }
+.r-links { display: none; }
+
+/* Colonne 3 */
+.col-right {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  padding: var(--pad);
+  transition: color var(--dur) var(--ease);
+}
+.is-r .col-right { color: var(--r-accent); }
+.logo-slot { justify-self: end; position: relative; width: clamp(44px, 4vw, 72px); aspect-ratio: 1; }
+/* logos : celui de la home part à gauche sous la fiche, celui du resto arrive par la droite
+   (la colonne est en overflow hidden, donc ils sont masqués hors colonne) */
+.logo-slot > * {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain;
+  transform: translateX(var(--W));
+  transition: transform var(--dur) var(--ease);
+}
+.logo-slot > [data-logo="home"]:not(.is-active) { transform: translateX(calc(-1 * var(--W))); }
+.logo-slot > .is-active { transform: none; }
+.logo-ph {
+  display: grid;
+  place-items: center;
+  border: 2px solid currentColor;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 1.4em;
+}
+/* aligné sur le haut du nom du resto : hauteur photo (4/3 de W) + padding */
+.menu-link {
+  position: absolute; left: var(--pad); top: calc(var(--W) * 3 / 4 + var(--pad));
+  pointer-events: none;
+  transform: translateX(var(--W)); /* part hors colonne à droite, glisse avec la fiche */
+  transition: transform var(--dur) var(--ease);
+}
+.is-r .menu-link { transform: none; pointer-events: auto; }
+.main-nav { grid-row: 3; align-self: end; justify-self: end; text-align: right; display: flex; flex-direction: column; }
+
+/* ---------- Sous-panneaux ---------- */
+.sub {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: var(--W);
+  z-index: 10;
+  background: var(--sub-bg);
+  color: var(--sub-ink);
+  transform: translateX(100%);
+  transition: transform var(--dur) var(--ease), background-color var(--dur), color var(--dur);
+}
+.sub.is-active { transform: none; }
+/* croix : hauteur ≈ hauteur de capitale des gros titres, trait épais */
+:root { --x: calc(var(--fs-l) * 0.72); }
+.close svg, .strip-close svg { display: block; width: var(--x); height: var(--x); stroke: currentColor; stroke-width: 1.5; stroke-linecap: square; fill: none; }
+.sub-inner { height: 100%; overflow-y: auto; padding: var(--pad); padding-right: calc(var(--pad) * 2 + var(--x)); }
+.close { position: absolute; top: var(--pad); right: var(--pad); z-index: 1; }
+.sub-title { font-size: var(--fs-s); font-weight: 700; margin-bottom: 2em; }
+.sub-title span { font-weight: 400; margin-left: 0.5em; }
+.sub-lead { font-size: var(--fs-s); font-weight: 700; margin-bottom: 1.5em; }
+.sub-more { display: inline-block; margin-top: 2em; font-size: var(--fs-s); font-weight: 700; }
+
+/* Menu */
+.sub[data-sub^="menu-"] { --sub-bg: var(--r-accent); --sub-ink: var(--cream); }
+.menu-cat { font-size: var(--fs-s); }
+.menu-cat + .menu-cat, .menu-photo + .menu-cat { margin-top: 2.2em; }
+.menu-cat h3 { font-size: var(--fs-s); font-weight: 700; margin-bottom: 0.6em; }
+.menu-cat h3 span { font-weight: 400; margin-left: 0.8em; }
+.menu-item { display: grid; grid-template-columns: 1fr auto; gap: 1em; line-height: 1.2; }
+.menu-item small { font-size: inherit; }
+.menu-item[data-img] > span:first-child { text-decoration: underline dotted; text-underline-offset: 3px; }
+.menu-photo { width: 100%; margin-top: 2.2em; aspect-ratio: 4 / 3; object-fit: cover; }
+.menu-note { margin-top: 2.5em; font-size: var(--fs-xs); }
+.menu-preview {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  width: 220px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.menu-preview.is-visible { opacity: 1; }
+
+/* Recrutement */
+.job { font-size: var(--fs-s); line-height: 1.2; padding: 1.2em 0; border-top: 1px solid currentColor; }
+.job h4 { font-size: var(--fs-s); margin-bottom: 0.4em; }
+.job h4 span { font-weight: 400; margin-left: 0.8em; }
+.job dl, .company { display: grid; grid-template-columns: auto 1fr; gap: 0 1.2em; }
+.job dt, .company dt { font-weight: 700; }
+.job-details { margin-top: 0.6em; }
+.job-apply { display: inline-block; margin-top: 0.8em; font-weight: 700; }
+.rec-block { margin-top: 2.5em; }
+.rec-block h3 { font-size: var(--fs-s); line-height: 1.2; font-weight: 700; margin-bottom: 0.6em; }
+.rec-block h3 span { margin-left: 0.5em; }
+
+/* About / contact */
+.company { font-size: var(--fs-s); line-height: 1.2; margin-top: 2em; }
+.about-fig { margin-top: 2.5em; display: flex; align-items: flex-end; gap: 1em; }
+.about-fig img { width: 45%; aspect-ratio: 1; object-fit: cover; }
+.about-fig figcaption { font-size: var(--fs-xs); margin-left: auto; text-align: right; }
+.contact-lines { font-size: var(--fs-s); font-weight: 700; line-height: 1.2; margin-bottom: 2em; }
+.contact-shops { margin-top: 2.5em; font-size: var(--fs-s); line-height: 1.2; }
+.contact-shops a { font-weight: 700; margin-right: 0.8em; }
+
+/* ---------- Mobile ---------- */
+@media (max-width: 767px) {
+  :root { --W: 100vw; --fs-l: 38px; --fs-s: 13px; --fs-xs: 11px; --pad: 16px; --strip: 12vw; }
+
+  .stage {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 2em;
+    padding: var(--pad);
+    width: 100vw !important;
+    transform: none !important;
+    overflow-y: auto;
+  }
+  .col-left, .col-right { display: contents; }
+  .brand { order: 1; }
+  .logo-slot { order: 2; justify-self: auto; width: 64px; }
+  .r-list { order: 3; margin-top: auto; }
+  .main-nav { order: 4; text-align: left; align-self: flex-start; }
+  .menu-link { display: none; }
+  /* à l'ouverture d'un resto, c'est la home derrière qui prend la couleur */
+  .stage { transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease); }
+  .is-r .stage { background: var(--r-color); color: #000; }
+  .is-r .col-left, .is-r .col-right { color: inherit; background: none; }
+  /* mobile : le logo de la home reste derrière, on ne swappe pas */
+  .logo-slot > * { opacity: 0 !important; }
+  .logo-slot > [data-logo="home"] { opacity: 1 !important; transform: none !important; }
+
+  /* fiche resto = panneau plein écran avec bande colorée à gauche */
+  .col-info {
+    position: fixed;
+    inset: 0 0 0 var(--strip);
+    z-index: 5;
+    height: auto;
+    overflow: visible;
+    background: var(--beige);
+    transform: translateX(calc(100% + var(--strip)));
+    transition: transform var(--dur) var(--ease);
+  }
+  .is-r .col-info { transform: none; }
+  .strip-close { display: block; position: absolute; top: var(--pad); left: calc(-1 * (var(--strip) + var(--x)) / 2); color: var(--cream); }
+  .r-info { inset: 0; width: auto; }
+  .r-links { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 3em; }
+  .r-links > div { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 0.8em; }
+  .r-links-logo { width: 64px; height: 64px; flex: none; object-fit: contain; font-size: 20px; }
+  .small-link { font-size: var(--fs-s); font-weight: 700; }
+
+  .sub { left: calc(var(--strip) * 2); width: auto; }
+  .sub[data-sub^="menu-"] { --sub-bg: var(--cream); --sub-ink: var(--r-accent); }
+  .col-info, .sub { touch-action: pan-y; }
+  /* évite un filet clair au bord droit (arrondi sous-pixel des panneaux fixes) :
+     le fond de page prend la couleur du panneau du dessus */
+  html.is-r, html.is-r body { background: var(--beige); }
+  html.is-sub, html.is-sub body { background: var(--sub-bg); }
+  html:not(.is-r) .sub { left: var(--strip); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition-duration: 0.01s !important; }
+}
