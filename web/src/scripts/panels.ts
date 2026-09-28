@@ -86,7 +86,9 @@ export function initPanels() {
     $$<HTMLAnchorElement>('.sub [data-close]').forEach((a) => (a.href = r ? `#${r}` : '#'))
   }
 
-  addEventListener('hashchange', apply)
+  const ac = new AbortController() // pour tout détacher si le contenu est re-rendu (live.ts)
+  const sig = {signal: ac.signal}
+  addEventListener('hashchange', apply, sig)
 
   // Mobile : un tap en dehors du panneau du dessus le ferme
   // (capture pour bloquer les liens de la home visibles dans la bande)
@@ -104,14 +106,16 @@ export function initPanels() {
       e.preventDefault(); e.stopPropagation()
       location.hash = ''
     }
-  }, true)
+  }, {capture: true, signal: ac.signal})
   addEventListener('keydown', (e) => {
     if (e.key !== 'Escape') return
     const {r, sub} = parse()
     location.hash = sub && r ? r : ''
-  })
+  }, sig)
 
   apply()
   // pas d'animation au chargement direct sur un hash
   requestAnimationFrame(() => requestAnimationFrame(() => document.body.classList.remove('no-anim')))
+
+  return () => ac.abort()
 }

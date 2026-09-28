@@ -2,7 +2,8 @@
 // Désactivé sur écrans tactiles.
 
 export function initMenuHover() {
-  if (!matchMedia('(hover: hover) and (pointer: fine)').matches) return
+  if (!matchMedia('(hover: hover) and (pointer: fine)').matches) return () => {}
+  const ac = new AbortController()
 
   const preview = document.createElement('img')
   preview.className = 'menu-preview'
@@ -44,5 +45,10 @@ export function initMenuHover() {
     document.querySelectorAll<HTMLElement>('.sub.is-active .menu-item[data-img]').forEach((i) => {
       new Image().src = i.dataset.img!
     })
-  })
+  }, {signal: ac.signal})
+
+  return () => {
+    ac.abort()
+    preview.remove()
+  }
 }

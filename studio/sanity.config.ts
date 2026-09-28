@@ -3,6 +3,7 @@ import {structureTool} from 'sanity/structure'
 import {jaJPLocale} from '@sanity/locale-ja-jp'
 import {schemaTypes} from './schemaTypes'
 import {structure} from './structure'
+import {deployTool} from './tools/deployTool'
 
 const SINGLETONS = ['siteSettings']
 
@@ -11,7 +12,7 @@ export default defineConfig({
   title: 'TORIKO',
   projectId: '6fyua1ac',
   dataset: 'production',
-  plugins: [structureTool({structure}), jaJPLocale()],
+  plugins: [structureTool({structure}), deployTool(), jaJPLocale()],
   schema: {
     types: schemaTypes,
     // empêche de créer un 2e siteSettings

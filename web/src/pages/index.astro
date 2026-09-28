@@ -1,26 +1,15 @@
 ---
+// La mise en page est dans src/lib/render.ts (partagée avec le navigateur, cf. scripts/live.ts)
 import '../styles/global.css'
-import {getSite} from '../lib/sanity'
-import {img, rich} from '../lib/helpers'
-import Logo from '../components/Logo.astro'
-import RestaurantInfo from '../components/RestaurantInfo.astro'
-import MenuPanel from '../components/MenuPanel.astro'
-import Sub from '../components/Sub.astro'
-import Positions from '../components/Positions.astro'
+import {getSite, projectId, dataset} from '../lib/sanity'
+import {renderApp, signature, images} from '../lib/render'
 
-const {settings = {}, restaurants = [], } = await getSite()
-// recrutement : tout dans siteSettings.positions, groupé par resto (ordre des restos), puis 全店舗共通
-const allPositions: any[] = settings?.positions || []
-const recruitment = [
-  ...restaurants
-    .map((r: any) => ({r, positions: allPositions.filter((p) => p.restaurant?.slug === r.slug)}))
-    .filter((g: any) => g.positions.length),
-  ...(allPositions.some((p) => !p.restaurant?.slug) ? [{r: null, positions: allPositions.filter((p) => !p.restaurant?.slug)}] : []),
-]
-const s = settings
+const data = await getSite()
+const cfg = {projectId, dataset}
+const s = data?.settings || {}
+const restaurants = data?.restaurants || []
 const company = s.companyName || 'TORIKO INC.'
-const og = img(s.ogImage, 1200, 630)
-const aboutImg = img(s.aboutImage, 800)
+const og = images(cfg).img(s.ogImage, 1200, 630)
 ---
 <!doctype html>
 <html lang="ja">
@@ -32,6 +21,7 @@ const aboutImg = img(s.aboutImage, 800)
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;600;700&display=swap" />
+    {projectId && <link rel="preconnect" href={`https://${projectId}.apicdn.sanity.io`} crossorigin />}
     <title>{company}</title>
     {s.seoDescription && <meta name="description" content={s.seoDescription} />}
     <meta property="og:title" content={company} />
@@ -50,92 +40,24 @@ const aboutImg = img(s.aboutImage, 800)
     })} />
   </head>
   <body class="no-anim">
-    <div class="stage">
-      <!-- Colonne 1 : marque + liste des restaus -->
-      <div class="col col-left">
-        <a href="#" class="big brand">{company}</a>
-        <ul class="big r-list">
-          {restaurants.map((r: any) => <li><a href={`#${r.slug}`} data-r={r.slug}>{r.nameEn}</a></li>)}
-        </ul>
-      </div>
+    <div id="app" set:html={renderApp(data, cfg)} />
 
-      <!-- Colonne 2 : fiche resto (largeur 0 sur la home) -->
-      <div class="col col-info">
-        <a href="#" class="strip-close" data-close aria-label="閉じる"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M1 1 9 9M9 1 1 9" /></svg></a>
-        {restaurants.map((r: any) => <RestaurantInfo r={r} hasJobs={allPositions.length > 0} />)}
-      </div>
-
-      <!-- Colonne 3 : logo, MENU, nav -->
-      <div class="col col-right">
-        <div class="logo-slot">
-          <Logo src={s.logo} label={company} data-logo="home" class="is-active" />
-          {restaurants.map((r: any) => <Logo src={r.logo} label={r.nameEn} data-logo={r.slug} />)}
-        </div>
-        <a class="big menu-link" href="#" data-menu-link>MENU<br /><span>メニュー</span></a>
-        <nav class="big main-nav">
-          <a href="#about" data-nav="about">ABOUT</a>
-          <a href="#recruitment" data-nav="recruitment">RECRUITMENT</a>
-          <a href="#contact" data-nav="contact">CONTACT</a>
-        </nav>
-      </div>
-    </div>
-
-    <!-- Menus par resto -->
-    {restaurants.map((r: any) => <MenuPanel r={r} />)}
-
-    <!-- Panneaux globaux -->
-    <Sub id="about" title="ABOUT">
-      <div class="prose" set:html={rich(s.aboutText)} />
-      {s.company?.length > 0 && (
-        <dl class="company">
-          {s.company.map((row: any) => <><dt>{row.label}</dt><dd>{row.value}</dd></>)}
-        </dl>
-      )}
-      {aboutImg && (
-        <figure class="about-fig">
-          <img src={aboutImg} alt="" loading="lazy" />
-          {s.aboutCaption && <figcaption>{s.aboutCaption}</figcaption>}
-        </figure>
-      )}
-    </Sub>
-
-    <Sub id="recruitment" title="RECRUITMENT" titleJa="求人">
-      <div class="prose" set:html={rich(s.recruitmentIntro)} />
-      {recruitment.length
-        ? recruitment.map(({r, positions}: any) => (
-            <section class="rec-block">
-              {r
-                ? <h3><a href={`#${r.slug}`}>{r.nameEn}</a><span>{r.nameJa}</span></h3>
-                : <h3>ALL<span>全店舗共通</span></h3>}
-              <Positions positions={positions} fallbackEmail={s.email} />
-            </section>
-          ))
-        : <p>{s.recruitmentEmpty || '現在募集はありません。'}</p>}
-    </Sub>
-
-    <Sub id="contact" title="CONTACT" titleJa="お問い合わせ">
-      <p class="contact-lines">
-        {s.email && <><a href={`mailto:${s.email}`}>{s.email}</a><br /></>}
-        {s.phone && <><a href={`tel:${s.phone.replace(/[^\d+]/g, '')}`}>{s.phone}</a><br /></>}
-        {s.address}
-      </p>
-      <div class="prose" set:html={rich(s.contactText)} />
-      <ul class="contact-shops">
-        {restaurants.map((r: any) => (
-          <li>
-            <a href={`#${r.slug}`}>{r.nameEn}</a> {r.phone}
-          </li>
-        ))}
-      </ul>
-    </Sub>
+    <script id="site-config" type="application/json" set:html={JSON.stringify({...cfg, sig: signature(data)})} />
 
     <script>
       import {initPanels} from '../scripts/panels'
       import {initMenuHover} from '../scripts/menuHover'
       import {initSwipe} from '../scripts/swipe'
-      initPanels()
-      initMenuHover()
-      initSwipe()
+      import {initLive} from '../scripts/live'
+
+      let cleanups: Array<() => void> = []
+      const init = () => {
+        cleanups.forEach((fn) => fn())
+        cleanups = [initPanels(), initMenuHover()]
+        initSwipe() // écouteurs posés sur les panneaux → partent avec eux
+      }
+      init()
+      initLive(init)
     </script>
   </body>
 </html>
