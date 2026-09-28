@@ -104,7 +104,7 @@ img { display: block; max-width: 100%; }
   transition: color var(--dur) var(--ease);
 }
 .is-r .col-right { color: var(--r-accent); }
-.logo-slot { justify-self: end; position: relative; width: clamp(44px, 4vw, 72px); aspect-ratio: 1; }
+.logo-slot { justify-self: end; position: relative; width: clamp(72px, 9.8vw, 190px); aspect-ratio: 1; }
 /* logos : celui de la home part à gauche sous la fiche, celui du resto arrive par la droite
    (la colonne est en overflow hidden, donc ils sont masqués hors colonne) */
 .logo-slot > * {
