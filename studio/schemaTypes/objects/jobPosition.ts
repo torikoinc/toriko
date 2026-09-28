@@ -7,6 +7,13 @@ export const jobPosition = defineType({
   fields: [
     defineField({name: 'title', title: '職種', description: '例：ホールスタッフ', type: 'string', validation: (r) => r.required()}),
     defineField({
+      name: 'restaurant',
+      title: '店舗',
+      description: '空欄の場合は「全店舗共通」として表示',
+      type: 'reference',
+      to: [{type: 'restaurant'}],
+    }),
+    defineField({
       name: 'employmentType',
       title: '雇用形態',
       type: 'string',
@@ -29,5 +36,8 @@ export const jobPosition = defineType({
     }),
     defineField({name: 'applyUrl', title: '応募 URL', description: '空欄の場合は共通の連絡先を表示', type: 'url'}),
   ],
-  preview: {select: {title: 'title', subtitle: 'salary'}},
+  preview: {
+    select: {title: 'title', shop: 'restaurant.nameEn', salary: 'salary'},
+    prepare: ({title, shop, salary}) => ({title, subtitle: [shop || '全店舗共通', salary].filter(Boolean).join(' ・ ')}),
+  },
 })

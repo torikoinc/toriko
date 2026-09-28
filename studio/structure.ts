@@ -11,17 +11,10 @@ export const structure: StructureResolver = (S) =>
       S.divider(),
       S.listItem()
         .title('店舗')
+        .id('restaurants')
         .child(
           S.documentTypeList('restaurant')
             .title('店舗')
-            .defaultOrdering([{field: 'order', direction: 'asc'}]),
-        ),
-      S.listItem()
-        .title('募集中の店舗')
-        .child(
-          S.documentList()
-            .title('募集中の店舗')
-            .filter('_type == "restaurant" && recruitmentOpen == true')
             .defaultOrdering([{field: 'order', direction: 'asc'}]),
         ),
     ])

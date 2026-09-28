@@ -9,7 +9,7 @@ const SINGLETONS = ['siteSettings']
 export default defineConfig({
   name: 'default',
   title: 'TORIKO',
-  projectId: 'YOUR_PROJECT_ID',
+  projectId: '6fyua1ac',
   dataset: 'production',
   plugins: [structureTool({structure}), jaJPLocale()],
   schema: {

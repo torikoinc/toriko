@@ -10,7 +10,6 @@ export const restaurant = defineType({
     {name: 'info', title: '基本情報', default: true},
     {name: 'design', title: 'デザイン'},
     {name: 'menu', title: 'メニュー'},
-    {name: 'recruitment', title: '求人'},
   ],
   fields: [
     // --- 基本情報
@@ -79,11 +78,11 @@ export const restaurant = defineType({
       group: 'design',
       validation: hex,
     }),
-    defineField({name: 'logo', title: 'ロゴ', type: 'image', group: 'design'}),
+    defineField({name: 'logo', title: 'ロゴ', description: '推奨：SVG、または透過PNG 500×500px（正方形）', type: 'image', group: 'design'}),
     defineField({
       name: 'images',
       title: '写真',
-      description: '1枚目がメイン写真になります',
+      description: '1枚目がメイン写真になります。推奨：横長 4:3、1600×1200px、JPG、5MB以下',
       type: 'array',
       group: 'design',
       of: [
@@ -99,6 +98,7 @@ export const restaurant = defineType({
     defineField({
       name: 'menuImage',
       title: 'メニューパネルの写真',
+      description: '推奨：横長 4:3、1600×1200px、JPG、5MB以下',
       type: 'image',
       group: 'menu',
       options: {hotspot: true},
@@ -118,30 +118,13 @@ export const restaurant = defineType({
       group: 'menu',
     }),
 
-    // --- 求人
-    defineField({
-      name: 'recruitmentOpen',
-      title: '募集中',
-      description: 'オンにすると店舗パネルと RECRUITMENT ページに表示されます',
-      type: 'boolean',
-      group: 'recruitment',
-      initialValue: false,
-    }),
-    defineField({
-      name: 'positions',
-      title: '募集職種',
-      type: 'array',
-      group: 'recruitment',
-      of: [defineArrayMember({type: 'jobPosition'})],
-      hidden: ({document}) => !document?.recruitmentOpen,
-    }),
   ],
   orderings: [{title: '表示順', name: 'orderAsc', by: [{field: 'order', direction: 'asc'}]}],
   preview: {
-    select: {title: 'nameEn', subtitle: 'nameJa', media: 'logo', visible: 'visible', rec: 'recruitmentOpen'},
-    prepare: ({title, subtitle, media, visible, rec}) => ({
+    select: {title: 'nameEn', subtitle: 'nameJa', media: 'logo', visible: 'visible'},
+    prepare: ({title, subtitle, media, visible}) => ({
       title: `${title}${visible === false ? '（非公開）' : ''}`,
-      subtitle: `${subtitle ?? ''}${rec ? ' ・ 募集中' : ''}`,
+      subtitle,
       media,
     }),
   },

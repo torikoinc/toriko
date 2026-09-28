@@ -8,7 +8,15 @@ import MenuPanel from '../components/MenuPanel.astro'
 import Sub from '../components/Sub.astro'
 import Positions from '../components/Positions.astro'
 
-const {settings = {}, restaurants = [], recruitment = []} = await getSite()
+const {settings = {}, restaurants = [], } = await getSite()
+// recrutement : tout dans siteSettings.positions, groupé par resto (ordre des restos), puis 全店舗共通
+const allPositions: any[] = settings?.positions || []
+const recruitment = [
+  ...restaurants
+    .map((r: any) => ({r, positions: allPositions.filter((p) => p.restaurant?.slug === r.slug)}))
+    .filter((g: any) => g.positions.length),
+  ...(allPositions.some((p) => !p.restaurant?.slug) ? [{r: null, positions: allPositions.filter((p) => !p.restaurant?.slug)}] : []),
+]
 const s = settings
 const company = s.companyName || 'TORIKO INC.'
 const og = img(s.ogImage, 1200, 630)
@@ -54,7 +62,7 @@ const aboutImg = img(s.aboutImage, 800)
       <!-- Colonne 2 : fiche resto (largeur 0 sur la home) -->
       <div class="col col-info">
         <a href="#" class="strip-close" data-close aria-label="閉じる"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M1 1 9 9M9 1 1 9" /></svg></a>
-        {restaurants.map((r: any) => <RestaurantInfo r={r} />)}
+        {restaurants.map((r: any) => <RestaurantInfo r={r} hasJobs={allPositions.length > 0} />)}
       </div>
 
       <!-- Colonne 3 : logo, MENU, nav -->
@@ -94,10 +102,12 @@ const aboutImg = img(s.aboutImage, 800)
     <Sub id="recruitment" title="RECRUITMENT" titleJa="求人">
       <div class="prose" set:html={rich(s.recruitmentIntro)} />
       {recruitment.length
-        ? recruitment.map((r: any) => (
+        ? recruitment.map(({r, positions}: any) => (
             <section class="rec-block">
-              <h3><a href={`#${r.slug}`}>{r.nameEn}</a><span>{r.nameJa}</span></h3>
-              <Positions positions={r.positions} fallbackEmail={s.email} />
+              {r
+                ? <h3><a href={`#${r.slug}`}>{r.nameEn}</a><span>{r.nameJa}</span></h3>
+                : <h3>ALL<span>全店舗共通</span></h3>}
+              <Positions positions={positions} fallbackEmail={s.email} />
             </section>
           ))
         : <p>{s.recruitmentEmpty || '現在募集はありません。'}</p>}

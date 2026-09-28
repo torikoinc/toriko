@@ -23,7 +23,7 @@ export const menuSection = defineType({
             defineField({
               name: 'image',
               title: '写真（任意）',
-              description: 'マウスを乗せるとカーソル横に表示されます',
+              description: 'マウスを乗せるとカーソル横に表示されます。推奨：横長 4:3、800×600px、JPG',
               type: 'image',
               options: {hotspot: true},
             }),

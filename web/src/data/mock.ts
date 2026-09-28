@@ -64,27 +64,44 @@ const base = {
   menuNote: '価格は全て税込です',
 }
 
+const ref = (slug: string, nameEn: string, nameJa: string) => ({slug, nameEn, nameJa})
+
 const positions = [
   {
     title: 'ホールスタッフ',
+    restaurant: ref('cotorico', 'COTORICO', '焼鳥ことりこ'),
     employmentType: 'parttime',
     salary: '時給 1,200円〜',
     hours: '17:00-0:00（シフト制）',
     details: '未経験歓迎。週2日〜OK。まかないあり。',
   },
   {
+    title: 'ホールスタッフ',
+    restaurant: ref('sumiyaki', 'SUMIYAKI', '炭焼きとりこ'),
+    employmentType: 'parttime',
+    salary: '時給 1,200円〜',
+    hours: '17:00-0:00（シフト制）',
+  },
+  {
     title: '焼き場スタッフ',
+    restaurant: ref('cotorico', 'COTORICO', '焼鳥ことりこ'),
     employmentType: 'fulltime',
     salary: '月給 25万円〜',
     hours: '15:00-0:00',
     details: '経験者優遇。社会保険完備。',
   },
+  {
+    title: '店長候補',
+    employmentType: 'fulltime',
+    salary: '月給 30万円〜',
+    details: '全店舗共通の募集です。',
+  },
 ]
 
 const restaurants = [
-  {...base, _id: 'r1', slug: 'toriko', nameEn: 'TORIKO', nameJa: '焼きとりのとりこ', color: '#103353', recruitmentOpen: false, positions: []},
-  {...base, _id: 'r2', slug: 'sumiyaki', nameEn: 'SUMIYAKI', nameJa: '炭焼きとりこ', color: '#302703', recruitmentOpen: true, positions: positions.slice(0, 1)},
-  {...base, _id: 'r3', slug: 'cotorico', nameEn: 'COTORICO', nameJa: '焼鳥ことりこ', color: '#4F4B07', recruitmentOpen: true, positions},
+  {...base, _id: 'r1', slug: 'toriko', nameEn: 'TORIKO', nameJa: '焼きとりのとりこ', color: '#103353'},
+  {...base, _id: 'r2', slug: 'sumiyaki', nameEn: 'SUMIYAKI', nameJa: '炭焼きとりこ', color: '#302703'},
+  {...base, _id: 'r3', slug: 'cotorico', nameEn: 'COTORICO', nameJa: '焼鳥ことりこ', color: '#4F4B07'},
 ]
 
 export const mock = {
@@ -101,11 +118,11 @@ export const mock = {
     ],
     recruitmentIntro: '一緒に働く仲間を募集しています。各店舗の募集内容をご確認ください。',
     recruitmentEmpty: '現在募集はありません。',
+    positions,
     email: 'info@toriko.jp',
     phone: '092-711-7188',
     address: '〒810-0075 福岡県福岡市中央区港2-10-3',
     contactText: 'ご予約は各店舗まで直接お電話ください。',
   },
   restaurants,
-  recruitment: restaurants.filter((r) => r.recruitmentOpen && r.positions.length),
 }

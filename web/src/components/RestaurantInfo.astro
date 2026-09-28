@@ -1,7 +1,7 @@
 ---
 import {img, srcset, rich} from '../lib/helpers'
 import Logo from './Logo.astro'
-const {r} = Astro.props
+const {r, hasJobs} = Astro.props
 const photo = r.images?.[0]
 const photoUrl = img(photo, 960, 720)
 ---
@@ -34,7 +34,7 @@ const photoUrl = img(photo, 960, 720)
       <Logo src={r.logo} label={r.nameEn} class="r-links-logo" />
       <div>
         <a class="big" href={`#${r.slug}/menu`}>MENU<br /><span>メニュー</span></a>
-        {r.recruitmentOpen && <a class="small-link" href={`#${r.slug}/recruitment`}>RECRUITMENT 求人</a>}
+        {hasJobs && <a class="small-link" href={`#${r.slug}/recruitment`}>RECRUITMENT 求人</a>}
       </div>
     </div>
   </div>
