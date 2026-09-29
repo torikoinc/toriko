@@ -87,7 +87,15 @@ img { display: block; max-width: 100%; }
   transition: opacity 0.35s, visibility 0.35s;
 }
 .r-info.is-active { opacity: 1; visibility: visible; }
-.r-photo { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; background: color-mix(in srgb, var(--r-color), #fff 25%); }
+.r-photo { position: relative; width: 100%; aspect-ratio: 4 / 3; overflow: hidden; background: color-mix(in srgb, var(--r-color), #fff 25%); }
+.r-photo img { width: 100%; height: 100%; object-fit: cover; }
+/* galerie : défilement horizontal aimanté + points */
+.r-slides { display: flex; height: 100%; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; overscroll-behavior-x: contain; }
+.r-slides::-webkit-scrollbar { display: none; }
+.r-slides img { flex: 0 0 100%; scroll-snap-align: start; cursor: pointer; }
+.r-dots { position: absolute; left: 0; right: 0; bottom: 12px; display: flex; justify-content: center; gap: 8px; pointer-events: none; }
+.r-dots button { pointer-events: auto; width: 8px; height: 8px; padding: 0; border: 0; border-radius: 50%; background: var(--cream); opacity: 0.45; cursor: pointer; transition: opacity 0.2s; }
+.r-dots button.is-active { opacity: 1; }
 .r-body { padding: var(--pad); }
 .r-name { margin-bottom: 1em; }
 .r-meta { font-size: var(--fs-s); font-weight: 700; line-height: 1.2; margin-bottom: 1.5em; }
@@ -114,6 +122,12 @@ img { display: block; max-width: 100%; }
 }
 .logo-slot > [data-logo="home"]:not(.is-active) { transform: translateX(calc(-1 * var(--W))); }
 .logo-slot > .is-active { transform: none; }
+.logo-mask {
+  display: block;
+  background-color: currentColor;
+  -webkit-mask: var(--logo) center / contain no-repeat;
+  mask: var(--logo) center / contain no-repeat;
+}
 .logo-ph {
   display: grid;
   place-items: center;
@@ -194,7 +208,7 @@ img { display: block; max-width: 100%; }
 /* About / contact */
 .company { font-size: var(--fs-s); line-height: 1.2; margin-top: 2em; }
 .about-fig { margin-top: 2.5em; display: flex; align-items: flex-end; gap: 1em; }
-.about-fig img { width: 45%; aspect-ratio: 1; object-fit: cover; }
+.about-fig img { width: 45%; height: auto; } /* ratio original de l'image */
 .about-fig figcaption { font-size: var(--fs-xs); margin-left: auto; text-align: right; }
 .contact-lines { font-size: var(--fs-s); font-weight: 700; line-height: 1.2; margin-bottom: 2em; }
 .contact-shops { margin-top: 2.5em; font-size: var(--fs-s); line-height: 1.2; }
@@ -202,7 +216,7 @@ img { display: block; max-width: 100%; }
 
 /* ---------- Mobile ---------- */
 @media (max-width: 767px) {
-  :root { --W: 100vw; --fs-l: 38px; --fs-s: 13px; --fs-xs: 11px; --pad: 16px; --strip: 12vw; }
+  :root { --W: 100vw; --fs-l: 38px; --fs-s: 13px; --fs-xs: 11px; --pad: 16px; --strip: 50px; }
 
   .stage {
     display: flex;
@@ -216,12 +230,15 @@ img { display: block; max-width: 100%; }
   }
   .col-left, .col-right { display: contents; }
   .brand { order: 1; }
-  .logo-slot { order: 2; justify-self: auto; width: 64px; }
-  .r-list { order: 3; margin-top: auto; }
+  /* home mobile : 4 blocs répartis avec des espaces égaux (space-between sur .stage) */
+  .logo-slot { order: 2; justify-self: auto; width: 120px; }
+  .r-list { order: 3; }
   .main-nav { order: 4; text-align: left; align-self: flex-start; }
   .menu-link { display: none; }
   /* à l'ouverture d'un resto, c'est la home derrière qui prend la couleur */
-  .stage { transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease); }
+  /* fond de la home en fondu (crème → couleur resto / beige) ; html/body suivent pour éviter un saut */
+  .stage { background: var(--cream); transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease); }
+  html, body { transition: background-color var(--dur) var(--ease); }
   .is-r .stage { background: var(--r-color); color: #000; }
   .is-r .col-left, .is-r .col-right { color: inherit; background: none; }
   /* mobile : le logo de la home reste derrière, on ne swappe pas */
@@ -242,18 +259,32 @@ img { display: block; max-width: 100%; }
   .is-r .col-info { transform: none; }
   .strip-close { display: block; position: absolute; top: var(--pad); left: calc(-1 * (var(--strip) + var(--x)) / 2); color: var(--cream); }
   .r-info { inset: 0; width: auto; }
-  .r-links { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 3em; }
-  .r-links > div { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 0.8em; }
-  .r-links-logo { width: 64px; height: 64px; flex: none; object-fit: contain; font-size: 20px; }
+  /* fiche en colonne : la barre logo + メニュー reste collée en bas (sticky),
+     et descend en bas de l'écran même si le texte est court */
+  .r-info { display: flex; flex-direction: column; }
+  .r-body { flex: 1 0 auto; display: flex; flex-direction: column; }
+  .r-links {
+    position: sticky; bottom: 0; z-index: 1;
+    display: flex; justify-content: space-between; align-items: center;
+    margin: auto calc(-1 * var(--pad)) calc(-1 * var(--pad));
+    padding: 12px var(--pad) calc(12px + env(safe-area-inset-bottom));
+    background: var(--beige);
+  }
+  .r-desc { margin-bottom: 2.5em; }
+  .r-links-logo { width: 48px; height: 48px; flex: none; font-size: 16px; }
   .small-link { font-size: var(--fs-s); font-weight: 700; }
 
   .sub { left: calc(var(--strip) * 2); width: auto; }
+  .sub-inner { padding-right: var(--pad); }
   .sub[data-sub^="menu-"] { --sub-bg: var(--cream); --sub-ink: var(--r-accent); }
   .col-info, .sub { touch-action: pan-y; }
   /* évite un filet clair au bord droit (arrondi sous-pixel des panneaux fixes) :
      le fond de page prend la couleur du panneau du dessus */
   html.is-r, html.is-r body { background: var(--beige); }
   html.is-sub, html.is-sub body { background: var(--sub-bg); }
+  /* mobile : ABOUT / RECRUITMENT / CONTACT ouverts depuis la home → panneau cream, fond du site beige */
+  html.is-sub:not(.is-r), html.is-sub:not(.is-r) body { background: var(--beige); }
+  html.is-sub:not(.is-r) .stage { background: var(--beige); }
   html:not(.is-r) .sub { left: var(--strip); }
 }
 

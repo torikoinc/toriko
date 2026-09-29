@@ -21,7 +21,7 @@ export const siteSettings = defineType({
     defineField({name: 'ogImage', title: 'OG 画像（SNS共有用）', description: '推奨：1200×630px、JPG', type: 'image', group: 'general'}),
 
     // --- ABOUT
-    defineField({name: 'aboutImage', title: '写真', description: '推奨：正方形 1200×1200px、JPG、5MB以下', type: 'image', options: {hotspot: true}, group: 'about'}),
+    defineField({name: 'aboutImage', title: '写真', description: '比率は自由（元の比率のまま表示）。推奨：長辺 1600px、JPG、5MB以下', type: 'image', group: 'about'}),
     defineField({name: 'aboutCaption', title: '写真キャプション', description: '例：代表 〇〇', type: 'string', group: 'about'}),
     defineField({name: 'aboutText', title: '本文', type: 'array', of: [text], group: 'about'}),
     defineField({

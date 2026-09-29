@@ -31,15 +31,24 @@ export function images(cfg: Cfg) {
     if (h) b = b.height(h).fit('crop')
     return b.url()
   }
+  // Logo : SVG gardé en vectoriel (Sanity rasterise un SVG dès qu'on met une largeur)
+  const logoUrl = (src: any): string | null => {
+    if (!src) return null
+    if (typeof src.url === 'string') return src.url
+    if (!builder || !src.asset) return null
+    return /-svg$/.test(src.asset._ref || '') ? builder.image(src).url() : img(src, 480)
+  }
   const srcset = (src: any, widths = [640, 960, 1600]) =>
     !src || typeof src.url === 'string' ? '' : widths.map((w) => `${img(src, w)} ${w}w`).join(', ')
-  return {img, srcset}
+  return {img, srcset, logoUrl}
 }
 
 // ---------- blocs ----------
+// Logo en masque CSS : la forme du fichier (SVG ou PNG transparent) est remplie
+// avec la couleur du texte (currentColor) → couleur accent du resto
 function logo(url: string | null, label: string, attrs: string, cls = '') {
   return url
-    ? `<img src="${esc(url)}" alt="${esc(label)}" class="${cls}" ${attrs} />`
+    ? `<span class="logo-mask ${cls}" role="img" aria-label="${esc(label)}" style="--logo:url('${esc(url)}')" ${attrs}></span>`
     : `<span class="logo-ph ${cls}" aria-label="${esc(label)}" ${attrs}>${esc(label?.slice(0, 1))}</span>`
 }
 
@@ -75,7 +84,7 @@ function positionsHtml(positions: any[], email?: string) {
 
 // ---------- page ----------
 export function renderApp(data: any, cfg: Cfg): string {
-  const {img, srcset} = images(cfg)
+  const {img, srcset, logoUrl} = images(cfg)
   const s = data?.settings || {}
   const restaurants: any[] = data?.restaurants || []
   const company = s.companyName || 'TORIKO INC.'
@@ -93,13 +102,21 @@ export function renderApp(data: any, cfg: Cfg): string {
   ]
 
   const info = (r: any) => {
-    const photo = r.images?.[0]
-    const photoUrl = img(photo, 960, 720)
+    const photos = (r.images || []).filter((p: any) => img(p, 960, 720))
     const color = r.color || '#333333'
+    const slide = (p: any, i: number) =>
+      `<img src="${esc(img(p, 960, 720))}" srcset="${esc(srcset(p))}" sizes="(max-width: 767px) 100vw, 33vw" alt="${esc(p?.alt || r.nameJa)}" loading="${i ? 'lazy' : 'eager'}" />`
+    // 1 photo → image simple ; plusieurs → galerie défilante + points
+    const photoHtml = !photos.length
+      ? '<div class="r-photo"></div>'
+      : photos.length === 1
+        ? `<div class="r-photo">${slide(photos[0], 0)}</div>`
+        : `<div class="r-photo r-gallery">
+    <div class="r-slides">${photos.map(slide).join('')}</div>
+    <div class="r-dots">${photos.map((_: any, i: number) => `<button type="button" aria-label="写真 ${i + 1}"${i ? '' : ' class="is-active"'}></button>`).join('')}</div>
+  </div>`
     return `<article class="r-info" data-info="${esc(r.slug)}" data-color="${esc(color)}" data-accent="${esc(r.accentColor || color)}" inert>
-  ${photoUrl
-    ? `<img class="r-photo" src="${esc(photoUrl)}" srcset="${esc(srcset(photo))}" sizes="(max-width: 767px) 100vw, 33vw" alt="${esc(photo?.alt || r.nameJa)}" loading="lazy" />`
-    : '<div class="r-photo"></div>'}
+  ${photoHtml}
   <div class="r-body">
     <h2 class="big r-name">${esc(r.nameEn)}<br /><span>${esc(r.nameJa)}</span></h2>
     <p class="r-meta">
@@ -112,13 +129,10 @@ export function renderApp(data: any, cfg: Cfg): string {
     ${r.instagram || r.reservationUrl
       ? `<p class="r-ext">${r.reservationUrl ? `<a href="${esc(r.reservationUrl)}" target="_blank" rel="noopener">RESERVATION 予約</a>` : ''}${r.instagram ? `<a href="${esc(r.instagram)}" target="_blank" rel="noopener">INSTAGRAM</a>` : ''}</p>`
       : ''}
-    <!-- mobile uniquement : sur desktop ces liens sont dans la colonne de droite -->
+    <!-- mobile uniquement : barre collée en bas de la fiche (sur desktop : colonne de droite) -->
     <div class="r-links">
-      ${logo(img(r.logo, 240), r.nameEn, '', 'r-links-logo')}
-      <div>
-        <a class="big" href="#${esc(r.slug)}/menu">MENU<br /><span>メニュー</span></a>
-        ${hasJobs ? `<a class="small-link" href="#${esc(r.slug)}/recruitment">RECRUITMENT 求人</a>` : ''}
-      </div>
+      ${logo(logoUrl(r.logo), r.nameEn, '', 'r-links-logo')}
+      <a class="big" href="#${esc(r.slug)}/menu">メニュー</a>
     </div>
   </div>
 </article>`
@@ -178,8 +192,8 @@ export function renderApp(data: any, cfg: Cfg): string {
   </div>
   <div class="col col-right">
     <div class="logo-slot">
-      ${logo(img(s.logo, 240), company, 'data-logo="home"', 'is-active')}
-      ${restaurants.map((r) => logo(img(r.logo, 240), r.nameEn, `data-logo="${esc(r.slug)}"`)).join('')}
+      ${logo(logoUrl(s.logo), company, 'data-logo="home"', 'is-active')}
+      ${restaurants.map((r) => logo(logoUrl(r.logo), r.nameEn, `data-logo="${esc(r.slug)}"`)).join('')}
     </div>
     <a class="big menu-link" href="#" data-menu-link>MENU<br /><span>メニュー</span></a>
     <nav class="big main-nav">

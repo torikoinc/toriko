@@ -13,6 +13,8 @@ export function initSwipe() {
 
     panel.addEventListener('touchstart', (e) => {
       if (!mq.matches || e.touches.length > 1) return
+      // swipe dans la galerie photo → c'est la galerie qui défile, pas le panneau
+      if ((e.target as Element).closest('.r-slides')) { mode = 'scroll'; return }
       x0 = e.touches[0].clientX
       y0 = e.touches[0].clientY
       t0 = performance.now()

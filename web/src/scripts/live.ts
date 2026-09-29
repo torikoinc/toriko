@@ -7,6 +7,16 @@ import {siteQuery} from '../lib/queries'
 
 type Config = {projectId?: string; dataset?: string; sig?: string}
 
+// Heure de la dernière navigation (ouverture/fermeture de panneau)
+let lastNav = 0
+addEventListener('hashchange', () => (lastNav = performance.now()))
+
+// Attend qu'aucune animation de panneau ne soit en cours avant de re-rendre
+const whenIdle = async () => {
+  const dur = (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--dur')) || 0.75) * 1000
+  while (performance.now() - lastNav < dur + 150) await new Promise((r) => setTimeout(r, 100))
+}
+
 export async function initLive(onSwap: () => void) {
   const el = document.getElementById('site-config')
   const app = document.getElementById('app')
@@ -21,6 +31,8 @@ export async function initLive(onSwap: () => void) {
     const {result} = await res.json()
     if (!result || signature(result) === cfg.sig) return // rien de neuf
 
+    await whenIdle() // ne pas couper une animation en cours
+    console.info('[toriko] contenu mis à jour depuis Sanity')
     document.body.classList.add('no-anim') // pas d'animation pendant l'échange
     app.innerHTML = renderApp(result, cfg)
     cfg.sig = signature(result)
