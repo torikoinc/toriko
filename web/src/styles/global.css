@@ -227,7 +227,9 @@ img { display: block; max-width: 100%; }
     width: 100vw !important;
     transform: none !important;
     overflow-y: auto;
+    overflow-x: hidden; /* les panneaux et logos cachés hors écran ne doivent pas créer de scroll horizontal */
   }
+  .logo-slot { overflow: hidden; }
   .col-left, .col-right { display: contents; }
   .brand { order: 1; }
   /* home mobile : 4 blocs répartis avec des espaces égaux (space-between sur .stage) */
