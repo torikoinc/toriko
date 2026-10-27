@@ -157,10 +157,17 @@ export function renderApp(data: any, cfg: Cfg): string {
   }
 
   const aboutImg = img(s.aboutImage, 800)
+  // SVG → masque CSS rempli avec la couleur du texte (comme les logos) ; sinon photo normale
+  const aboutRef: string = s.aboutImage?.asset?._ref || ''
+  const aboutSvg = /-svg$/.test(aboutRef)
+  const aboutRatio = (aboutRef.match(/-(\d+)x(\d+)-/) || []).slice(1).join(' / ') || '1 / 1'
+  const aboutMedia = aboutSvg
+    ? `<span class="logo-mask about-mask" role="img" aria-label="${esc(s.aboutCaption || company)}" style="--logo:url('${esc(logoUrl(s.aboutImage))}');aspect-ratio:${aboutRatio}"></span>`
+    : aboutImg ? `<img src="${esc(aboutImg)}" alt="" loading="lazy" />` : ''
   const about = sub('about', 'ABOUT', null, `
     <div class="prose">${rich(s.aboutText)}</div>
     ${s.company?.length ? `<dl class="company">${s.company.map((row: any) => `<dt>${esc(row.label)}</dt><dd>${esc(row.value)}</dd>`).join('')}</dl>` : ''}
-    ${aboutImg ? `<figure class="about-fig"><img src="${esc(aboutImg)}" alt="" loading="lazy" />${s.aboutCaption ? `<figcaption>${esc(s.aboutCaption)}</figcaption>` : ''}</figure>` : ''}`)
+    ${aboutMedia ? `<figure class="about-fig">${aboutMedia}${s.aboutCaption ? `<figcaption>${esc(s.aboutCaption)}</figcaption>` : ''}</figure>` : ''}`)
 
   const rec = sub('recruitment', 'RECRUITMENT', '求人', `
     <div class="prose">${rich(s.recruitmentIntro)}</div>

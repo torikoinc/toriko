@@ -209,6 +209,7 @@ img { display: block; max-width: 100%; }
 .company { font-size: var(--fs-s); line-height: 1.2; margin-top: 2em; }
 .about-fig { margin-top: 2.5em; display: flex; align-items: flex-end; gap: 1em; }
 .about-fig img { width: 45%; height: auto; } /* ratio original de l'image */
+.about-fig .about-mask { width: 35%; flex: none; } /* SVG : prend la couleur du texte du panneau */
 .about-fig figcaption { font-size: var(--fs-xs); margin-left: auto; text-align: right; }
 .contact-lines { font-size: var(--fs-s); font-weight: 700; line-height: 1.2; margin-bottom: 2em; }
 .contact-shops { margin-top: 2.5em; font-size: var(--fs-s); line-height: 1.2; }
