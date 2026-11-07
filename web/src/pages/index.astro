@@ -1,5 +1,8 @@
 ---
 // La mise en page est dans src/lib/render.ts (partagée avec le navigateur, cf. scripts/live.ts)
+import '@fontsource/noto-sans-jp/400.css'
+import '@fontsource/noto-sans-jp/600.css'
+import '@fontsource/noto-sans-jp/700.css'
 import '../styles/global.css'
 import {getSite, projectId, dataset} from '../lib/sanity'
 import {renderApp, signature, images} from '../lib/render'
@@ -18,9 +21,22 @@ const og = images(cfg).img(s.ogImage, 1200, 630)
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <!-- couleur de la barre mobile, mise à jour par panels.ts -->
     <meta name="theme-color" content="#f3eee6" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;600;700&display=swap" />
+    <script is:inline>
+      // Évite le flash Hiragino → Noto : on masque le site jusqu'au chargement de la police (max 1,5 s)
+      (function () {
+        var d = document.documentElement
+        if (!document.fonts || !document.fonts.load) return
+        d.classList.add('fonts-wait')
+        var done = function () { d.classList.remove('fonts-wait') }
+        Promise.race([
+          Promise.all([
+            document.fonts.load('600 1em "Noto Sans JP"', 'TORIKO鳥'),
+            document.fonts.load('400 1em "Noto Sans JP"', 'TORIKO鳥'),
+          ]),
+          new Promise(function (r) { setTimeout(r, 1500) }),
+        ]).then(done, done)
+      })()
+    </script>
     {projectId && <link rel="preconnect" href={`https://${projectId}.apicdn.sanity.io`} crossorigin />}
     <title>{company}</title>
     {s.seoDescription && <meta name="description" content={s.seoDescription} />}

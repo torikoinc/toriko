@@ -303,3 +303,7 @@ img { display: block; max-width: 100%; }
 @media (prefers-reduced-motion: reduce) {
   * { transition-duration: 0.01s !important; }
 }
+
+/* Attente de la police (cf. index.astro) */
+#app { transition: opacity 0.3s; }
+html.fonts-wait #app { opacity: 0; transition: none; }
