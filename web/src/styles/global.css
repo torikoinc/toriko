@@ -37,8 +37,7 @@ img { display: block; max-width: 100%; }
 
 .big { font-size: var(--fs-l); line-height: 1; font-weight: 600; letter-spacing: -0.01em; }
 .big span { display: inline-block; }
-/* liste des restos : taille ajustée par scripts/fitList.ts pour 1 nom = 1 ligne */
-.r-list { font-size: var(--fs-list, var(--fs-l)); }
+/* --fs-l est réduit par scripts/fitList.ts pour que chaque nom de resto tienne sur 1 ligne */
 .r-list a { white-space: nowrap; }
 
 .no-anim, .no-anim * { transition: none !important; }
