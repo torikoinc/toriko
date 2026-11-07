@@ -156,6 +156,18 @@ export function renderApp(data: any, cfg: Cfg): string {
     return sub(`menu-${r.slug}`, 'MENU', 'メニュー', cats + (r.menuNote ? `<p class="menu-note">${esc(r.menuNote)}</p>` : ''))
   }
 
+  const newsItems: any[] = data?.news || []
+  const newsDate = (d: string) => (d || '').replace(/-/g, '.')
+  const news = sub('news', 'NEWS', 'お知らせ', newsItems.length
+    ? newsItems.map((n) => `<article class="news-item">
+      <p class="news-date">${esc(newsDate(n.date))}</p>
+      <h4>${esc(n.title)}</h4>
+      ${n.body?.length ? `<div class="prose">${rich(n.body)}</div>` : ''}
+      ${n.image ? `<img src="${esc(img(n.image, 1200))}" alt="" loading="lazy" />` : ''}
+      ${n.url ? `<a class="news-link" href="${esc(n.url)}" target="_blank" rel="noopener">${esc(n.urlLabel || '詳しくはこちら')} →</a>` : ''}
+    </article>`).join('')
+    : '<p>現在お知らせはありません。</p>')
+
   const aboutImg = img(s.aboutImage, 800)
   // SVG → masque CSS rempli avec la couleur du texte (comme les logos) ; sinon photo normale
   const aboutRef: string = s.aboutImage?.asset?._ref || ''
@@ -204,6 +216,7 @@ export function renderApp(data: any, cfg: Cfg): string {
     </div>
     <a class="big menu-link" href="#" data-menu-link>MENU<br /><span>メニュー</span></a>
     <nav class="big main-nav">
+      <a href="#news" data-nav="news">NEWS</a>
       <a href="#about" data-nav="about">ABOUT</a>
       <a href="#recruitment" data-nav="recruitment">RECRUITMENT</a>
       <a href="#contact" data-nav="contact">CONTACT</a>
@@ -211,6 +224,7 @@ export function renderApp(data: any, cfg: Cfg): string {
   </div>
 </div>
 ${restaurants.map(menu).join('')}
+${news}
 ${about}
 ${rec}
 ${contact}`

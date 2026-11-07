@@ -15,5 +15,6 @@ export const siteQuery = /* groq */ `{
     mapUrl, instagram, reservationUrl, description,
     color, accentColor, logo, images,
     menuImage, menu, menuNote
-  }
+  },
+  "news": *[_type == "news"] | order(date desc)[0...30]{ _id, date, title, body, image, url, urlLabel }
 }`

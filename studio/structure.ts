@@ -8,6 +8,14 @@ export const structure: StructureResolver = (S) =>
         .title('サイト設定（ABOUT / RECRUITMENT / CONTACT）')
         .id('siteSettings')
         .child(S.document().schemaType('siteSettings').documentId('siteSettings')),
+      S.listItem()
+        .title('ニュース')
+        .id('news')
+        .child(
+          S.documentTypeList('news')
+            .title('ニュース')
+            .defaultOrdering([{field: 'date', direction: 'desc'}]),
+        ),
       S.divider(),
       S.listItem()
         .title('店舗')

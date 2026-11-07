@@ -20,7 +20,7 @@ export function initPanels() {
 
   const subId = (r: string | null, sub: string | null) => {
     if (sub === 'menu') return r ? `menu-${r}` : null
-    if (sub === 'about' || sub === 'contact' || sub === 'recruitment') return sub
+    if (sub === 'news' || sub === 'about' || sub === 'contact' || sub === 'recruitment') return sub
     return null
   }
 

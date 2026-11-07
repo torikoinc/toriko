@@ -205,6 +205,15 @@ img { display: block; max-width: 100%; }
 .rec-block h3 { font-size: var(--fs-s); line-height: 1.2; font-weight: 700; margin-bottom: 0.6em; }
 .rec-block h3 span { margin-left: 0.5em; }
 
+/* News */
+.news-item { font-size: var(--fs-s); line-height: 1.2; padding: 1.2em 0; border-top: 1px solid currentColor; }
+.news-item:first-child { border-top: 0; padding-top: 0; }
+.news-date { font-size: var(--fs-xs); margin-bottom: 0.3em; }
+.news-item h4 { font-size: var(--fs-s); font-weight: 700; margin-bottom: 0.6em; }
+.news-item .prose { margin-bottom: 0.8em; }
+.news-item img { display: block; width: 100%; height: auto; margin-top: 0.8em; }
+.news-link { display: inline-block; margin-top: 0.8em; font-weight: 700; }
+
 /* About / contact */
 .company { font-size: var(--fs-s); line-height: 1.2; margin-top: 2em; }
 .about-fig { margin-top: 2.5em; display: flex; align-items: flex-end; gap: 1em; }
