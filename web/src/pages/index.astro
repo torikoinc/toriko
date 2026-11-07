@@ -28,13 +28,16 @@ const og = images(cfg).img(s.ogImage, 1200, 630)
         if (!document.fonts || !document.fonts.load) return
         d.classList.add('fonts-wait')
         var done = function () { d.classList.remove('fonts-wait') }
-        Promise.race([
+        setTimeout(done, 1500)
+        // les @font-face sont dans le CSS chargé après ce script → on attend que le DOM et le CSS soient là
+        document.addEventListener('DOMContentLoaded', function () {
           Promise.all([
             document.fonts.load('600 1em "Noto Sans JP"', 'TORIKO鳥'),
             document.fonts.load('400 1em "Noto Sans JP"', 'TORIKO鳥'),
-          ]),
-          new Promise(function (r) { setTimeout(r, 1500) }),
-        ]).then(done, done)
+          ])
+            .then(function () { return document.fonts.ready })
+            .then(done, done)
+        })
       })()
     </script>
     {projectId && <link rel="preconnect" href={`https://${projectId}.apicdn.sanity.io`} crossorigin />}
