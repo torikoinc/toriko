@@ -191,7 +191,7 @@ export function renderApp(data: any, cfg: Cfg): string {
   return `<div class="stage">
   <div class="col col-left">
     <a href="#" class="big brand">${esc(company)}</a>
-    <ul class="big r-list">${restaurants.map((r) => `<li><a href="#${esc(r.slug)}" data-r="${esc(r.slug)}">${esc(r.nameEn)}</a></li>`).join('')}</ul>
+    <ul class="big r-list">${restaurants.map((r) => `<li><a href="#${esc(r.slug)}" data-r="${esc(r.slug)}">${esc(r.nameShort || r.nameEn)}</a></li>`).join('')}</ul>
   </div>
   <div class="col col-info">
     <a href="#" class="strip-close" data-close aria-label="閉じる">${X}</a>

@@ -50,11 +50,12 @@ const og = images(cfg).img(s.ogImage, 1200, 630)
       import {initSwipe} from '../scripts/swipe'
       import {initLive} from '../scripts/live'
       import {initGallery} from '../scripts/gallery'
+      import {initFitList} from '../scripts/fitList'
 
       let cleanups: Array<() => void> = []
       const init = () => {
         cleanups.forEach((fn) => fn())
-        cleanups = [initPanels(), initMenuHover()]
+        cleanups = [initPanels(), initMenuHover(), initFitList()]
         initSwipe() // écouteurs posés sur les panneaux → partent avec eux
         initGallery()
       }

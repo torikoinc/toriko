@@ -22,9 +22,7 @@
   --sub-bg: var(--cream);
   --sub-ink: var(--ink);
 
-  /* ヒラギノ角ゴ ProN : installée sur Mac / iPhone uniquement.
-     Windows / Android → Noto Sans JP (Google Fonts, téléchargée seulement si Hiragino absente) */
-  font-family: 'Hiragino Kaku Gothic ProN', 'ヒラギノ角ゴ ProN W3', 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+  font-family: 'Noto Sans JP', sans-serif; /* Google Fonts, même rendu sur tous les appareils */
   -webkit-font-smoothing: antialiased;
 }
 .is-r { --sub-bg: var(--cream); --sub-ink: var(--r-accent); }
@@ -39,6 +37,9 @@ img { display: block; max-width: 100%; }
 
 .big { font-size: var(--fs-l); line-height: 1; font-weight: 600; letter-spacing: -0.01em; }
 .big span { display: inline-block; }
+/* liste des restos : taille ajustée par scripts/fitList.ts pour 1 nom = 1 ligne */
+.r-list { font-size: var(--fs-list, var(--fs-l)); }
+.r-list a { white-space: nowrap; }
 
 .no-anim, .no-anim * { transition: none !important; }
 

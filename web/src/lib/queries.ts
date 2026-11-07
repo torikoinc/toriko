@@ -10,7 +10,7 @@ export const siteQuery = /* groq */ `{
   },
 
   "restaurants": *[_type == "restaurant" && visible != false] | order(order asc){
-    _id, nameEn, nameJa, "slug": slug.current,
+    _id, nameEn, nameShort, nameJa, "slug": slug.current,
     postalCode, address, phone, hours, holidays,
     mapUrl, instagram, reservationUrl, description,
     color, accentColor, logo, images,

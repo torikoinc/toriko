@@ -22,6 +22,13 @@ export const restaurant = defineType({
       validation: (r) => r.required(),
     }),
     defineField({
+      name: 'nameShort',
+      title: '店名（一覧用・短く）',
+      description: 'トップページの店舗一覧に表示。例：TORIKO（空欄の場合は英語の店名）',
+      type: 'string',
+      group: 'info',
+    }),
+    defineField({
       name: 'nameJa',
       title: '店名（日本語）',
       description: '例：焼鳥ことりこ',
